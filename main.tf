@@ -14,10 +14,10 @@ resource "aws_instance" "main" {
 
 resource "aws_s3_bucket" "b" {
   bucket = "my-tf-test-bucket"
-  acl    = "private"
+  acl    = "public"
 
   tags = {
-    Name        = "My bucket"
+    Name        = "bucket123"
     Environment = "Dev"
   }
 }
