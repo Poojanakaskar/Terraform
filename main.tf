@@ -9,7 +9,7 @@ provider "aws" {
 
 resource "aws_instance" "main" {
   ami           = "ami-0b898040803850657"
-  instance_type = "t2.small"
+  instance_type = "t2.smallllll"
 }
 
 resource "aws_s3_bucket" "b" {
