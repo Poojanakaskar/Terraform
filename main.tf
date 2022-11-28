@@ -17,7 +17,7 @@ provider "aws" {
 # }
 
 
-resource "aws_launch_template" "foobar" {
+resource "aws_launch_template" "foobar11" {
   name_prefix   = "foobar"
   image_id      = "ami-0c95d38b24a19de18"
   instance_type = "t2.micro"
@@ -38,7 +38,7 @@ resource "aws_autoscaling_group" "bar" {
   desired_capacity          = 1
   force_delete              = true
   launch_template {
-    id      = aws_launch_template.foobar.id
+    id      = aws_launch_template.foobar11.id
     version = "$Latest"
   }
   
