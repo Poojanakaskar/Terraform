@@ -1,0 +1,4 @@
+<powershell>
+[System.Environment]::SetEnvironmentVariable("NewEnvVar", "NewEnvValue", [System.EnvironmentVariableTarget]::User)
+</powershell>
+<persist>true</persist>
