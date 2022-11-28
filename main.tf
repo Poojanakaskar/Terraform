@@ -42,13 +42,9 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 */
-<<<<<<< HEAD
+
 resource "aws_instance" "web" {
   ami                    = "ami-0b0dcb5067f052a63"
-=======
-resource "aws_instance" "web1" {
-  ami                    = "ami-0c95d38b24a19de18"
->>>>>>> 7a0844c6d96caf9b68ee8143d69cd4eec5525c26
   instance_type          = "t2.micro"
   vpc_security_group_ids = [aws_security_group.web-sg.id]
 
@@ -80,5 +76,5 @@ resource "aws_security_group" "web-sg" {
 }
 
 output "web-address" {
-  value = "${aws_instance.web1.public_dns}:8080"
+  value = "${aws_instance.web.public_dns}:8080"
 }
