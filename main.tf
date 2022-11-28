@@ -2,45 +2,78 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "3.26.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.0.1"
+    }
+  }
+  required_version = ">= 1.1.0"
+
+  cloud {
+    organization = "Pooja_Nakaskar_Demo"
+
+    workspaces {
+      name = "Githubaction"
     }
   }
 }
 
-# Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = "us-west-2"
 }
 
-# data "template_file" "user_data" {
-# template = "${file("demo.ps1")}"
-# }
+resource "random_pet" "sg" {}
+/*
+data "aws_ami" "ubuntu" {
+  most_recent = true
 
-
-resource "aws_launch_template" "foobar11" {
-  name_prefix   = "foobar"
-  image_id      = "ami-0c95d38b24a19de18"
-  instance_type = "t2.micro"
-  key_name = "mykeypair"
-
-#   user_data = "${base64encode(file("demo.ps1"))}"
-#   user_data = "${base64encode(data.template_file.user_data.rendered)}"
-    user_data = "${base64encode(file("user_data.txt"))}"
-}
-
-resource "aws_autoscaling_group" "bar" {
-  name                      = "foobar3-terraform-test"
-  availability_zones = ["us-east-1a"]
-  max_size                  = 1
-  min_size                  = 1
-  health_check_grace_period = 300
-  health_check_type         = "ELB"
-  desired_capacity          = 1
-  force_delete              = true
-  launch_template {
-    id      = aws_launch_template.foobar11.id
-    version = "$Latest"
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
-  
 
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+*/
+resource "aws_instance" "web" {
+  ami                    = "ami-0c95d38b24a19de18"
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.web-sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              apt-get update
+              apt-get install -y apache2
+              sed -i -e 's/80/8080/' /etc/apache2/ports.conf
+              echo "Hello World" > /var/www/html/index.html
+              systemctl restart apache2
+              EOF
+}
+
+resource "aws_security_group" "web-sg" {
+  name = "${random_pet.sg.id}-sg"
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  // connectivity to ubuntu mirrors is required to run `apt-get update` and `apt-get install apache2`
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "web-address" {
+  value = "${aws_instance.web.public_dns}:8080"
 }
